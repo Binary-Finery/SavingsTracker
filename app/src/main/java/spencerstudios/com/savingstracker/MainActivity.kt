@@ -1,5 +1,6 @@
 package spencerstudios.com.savingstracker
 
+import android.content.Intent
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
 import kotlinx.android.synthetic.main.activity_main.*
@@ -26,5 +27,6 @@ class MainActivity : AppCompatActivity() {
 
         btn_add.setOnClickListener { df.displayAddDialog(true, this@MainActivity, tv_amt) }
         btn_deduct.setOnClickListener { df.displayAddDialog(false, this@MainActivity, tv_amt) }
+        btn_history.setOnClickListener { startActivity(Intent(this@MainActivity, TransactionActivity::class.java)) }
     }
 }

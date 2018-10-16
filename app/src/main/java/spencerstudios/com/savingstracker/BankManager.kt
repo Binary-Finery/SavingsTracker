@@ -2,6 +2,8 @@ package spencerstudios.com.savingstracker
 
 import android.content.Context
 import android.preference.PreferenceManager
+import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
 
 class BankManager(context: Context) {
 
@@ -22,7 +24,7 @@ class BankManager(context: Context) {
     }
 
     fun addFunds(cash: String) {
-        val v = getVals(cash)
+        val v = getValues(cash)
         var pound = v[0] + v[2]
         var pennies = v[1] + v[3]
 
@@ -34,7 +36,7 @@ class BankManager(context: Context) {
     }
 
     fun deductFunds(cash: String) {
-        val v = getVals(cash)
+        val v = getValues(cash)
         var pound = v[2] - v[0]
         var pennies = v[3] - v[1]
         if (pennies < 0) {
@@ -44,7 +46,15 @@ class BankManager(context: Context) {
         formatAndCommitToBank(pound, pennies)
     }
 
-    fun getVals(cash: String): IntArray {
+    fun commitSingleTransaction(date: String, amount: String, balance: String) {
+        val transactions: ArrayList<Transaction> = getAllTransactions()
+        transactions.add(0, Transaction(date, amount, balance))
+        val gson = Gson()
+        val foo = gson.toJson(transactions)
+        bank.edit().putString("all_transactions", foo).apply()
+    }
+
+    private fun getValues(cash: String): IntArray {
         val ints = IntArray(4)
         //cash to add/deduct from balance
         ints[0] = cash.split(".")[0].toInt()
@@ -60,5 +70,19 @@ class BankManager(context: Context) {
         val stringPound = pound.toString()
         if (stringPenny.length < 2) stringPenny = "0" + stringPenny
         bank.edit().putString(bankKey, stringPound + "." + stringPenny).apply()
+    }
+
+    fun getAllTransactions(): ArrayList<Transaction> {
+        val temp: ArrayList<Transaction>
+        val gson = Gson()
+        val content = bank.getString("all_transactions", "")
+
+        temp = if (content!!.isEmpty()) {
+            ArrayList()
+        } else {
+            val type = object : TypeToken<List<Transaction>>() {}.type
+            gson.fromJson(content, type)
+        }
+        return temp
     }
 }
