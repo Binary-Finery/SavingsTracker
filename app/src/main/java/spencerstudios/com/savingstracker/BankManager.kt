@@ -85,4 +85,9 @@ class BankManager(context: Context) {
         }
         return temp
     }
+
+    fun resetBank() {
+        bank.edit().putString("all_transactions", "").apply()
+        bank.edit().putString(bankKey, "00.00").apply()
+    }
 }
